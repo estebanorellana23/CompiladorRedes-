@@ -1,0 +1,11 @@
+# Archivos compilados y binarios
+bin/
+*.class
+
+# Archivos temporales
+sources.txt
+
+# Directorios de IDEs (opcional, pero buena práctica)
+.vscode/
+.idea/
+*.iml

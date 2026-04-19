@@ -1,0 +1,91 @@
+package compilador.parser;
+
+import java_cup.runtime.*;
+import compilador.ast.*;
+import java.util.ArrayList;
+import java.util.List;
+
+parser code {:
+    // Manejo de errores de sintaxis
+    public void syntax_error(Symbol s) {
+        System.err.println("ERROR sintáctico: '" + s.value + "' en línea " + s.left + ", columna " + s.right);
+    }
+    public void unrecovered_syntax_error(Symbol s) throws java.lang.Exception {
+        System.err.println("ERROR sintáctico irrecuperable: '" + s.value + "' en línea " + s.left + ", columna " + s.right);
+    }
+:}
+
+/* Terminales (tokens de JFlex) */
+terminal String RED, ROUTER, FIREWALL, SWITCH, SWITCHL3, SERVER, PC, LAPTOP, MOBILE, ACCESSPOINT, INTERNET;
+terminal String INTERFAZ, IP_KW, CONECTAR, TIPO, WEB, DATABASE, APP;
+terminal String FLECHA, PUNTO, LLAVE_A, LLAVE_C, PYC;
+terminal String DIRECCION_IP, IDENTIFICADOR;
+
+/* No terminales */
+non terminal NodoRed programa;
+non terminal Object cuerpo_red; // Puede ser un wrapper o lista
+non terminal List<NodoDispositivo> lista_dispositivos;
+non terminal NodoDispositivo dispositivo;
+non terminal String tipo_server;
+non terminal List<NodoInterfaz> lista_interfaces;
+non terminal NodoInterfaz interfaz;
+non terminal List<NodoConexion> lista_conexiones;
+non terminal NodoConexion conexion;
+
+/* Precedencia y asociatividad (si aplica) */
+
+/* Reglas de producción */
+
+programa ::= RED IDENTIFICADOR:id LLAVE_A cuerpo_red:c LLAVE_C
+    {: RESULT = new NodoRed(id, ((Object[])c)[0], ((Object[])c)[1]); :};
+
+cuerpo_red ::= lista_dispositivos:ld lista_conexiones:lc
+    {: RESULT = new Object[]{ld, lc}; :};
+
+lista_dispositivos ::= dispositivo:d
+    {: List<NodoDispositivo> l = new ArrayList<>(); l.add(d); RESULT = l; :}
+    | lista_dispositivos:ld dispositivo:d
+    {: ld.add(d); RESULT = ld; :};
+
+dispositivo ::= ROUTER IDENTIFICADOR:id LLAVE_A lista_interfaces:li LLAVE_C
+    {: RESULT = new NodoRouter(id, li); :}
+    | FIREWALL IDENTIFICADOR:id LLAVE_A lista_interfaces:li LLAVE_C
+    {: RESULT = new NodoFirewall(id, li); :}
+    | SWITCH IDENTIFICADOR:id LLAVE_A lista_interfaces:li LLAVE_C
+    {: RESULT = new NodoSwitch(id, li); :}
+    | SWITCHL3 IDENTIFICADOR:id LLAVE_A lista_interfaces:li LLAVE_C
+    {: RESULT = new NodoSwitchL3(id, li); :}
+    | SERVER IDENTIFICADOR:id TIPO tipo_server:ts LLAVE_A lista_interfaces:li LLAVE_C
+    {: RESULT = new NodoServidor(id, ts, li); :}
+    | PC IDENTIFICADOR:id LLAVE_A lista_interfaces:li LLAVE_C
+    {: RESULT = new NodoPC(id, li); :}
+    | LAPTOP IDENTIFICADOR:id LLAVE_A lista_interfaces:li LLAVE_C
+    {: RESULT = new NodoLaptop(id, li); :}
+    | MOBILE IDENTIFICADOR:id LLAVE_A lista_interfaces:li LLAVE_C
+    {: RESULT = new NodoMobile(id, li); :}
+    | ACCESSPOINT IDENTIFICADOR:id LLAVE_A lista_interfaces:li LLAVE_C
+    {: RESULT = new NodoAccessPoint(id, li); :}
+    | INTERNET IDENTIFICADOR:id LLAVE_A lista_interfaces:li LLAVE_C
+    {: RESULT = new NodoInternet(id, li); :};
+
+tipo_server ::= WEB {: RESULT = "web"; :}
+    | DATABASE {: RESULT = "database"; :}
+    | APP {: RESULT = "app"; :};
+
+lista_interfaces ::= interfaz:i
+    {: List<NodoInterfaz> l = new ArrayList<>(); l.add(i); RESULT = l; :}
+    | lista_interfaces:li interfaz:i
+    {: li.add(i); RESULT = li; :};
+
+interfaz ::= INTERFAZ IDENTIFICADOR:id PYC
+    {: RESULT = new NodoInterfaz(id, null, idleft, idright); :}
+    | INTERFAZ IDENTIFICADOR:id IP_KW DIRECCION_IP:ip PYC
+    {: RESULT = new NodoInterfaz(id, ip, idleft, idright); :};
+
+lista_conexiones ::= /* vacío */
+    {: RESULT = new ArrayList<>(); :}
+    | lista_conexiones:lc conexion:c
+    {: lc.add(c); RESULT = lc; :};
+
+conexion ::= CONECTAR IDENTIFICADOR:d1 PUNTO IDENTIFICADOR:i1 FLECHA IDENTIFICADOR:d2 PUNTO IDENTIFICADOR:i2 PYC
+    {: RESULT = new NodoConexion(d1, i1, d2, i2, d1left, d1right); :};
