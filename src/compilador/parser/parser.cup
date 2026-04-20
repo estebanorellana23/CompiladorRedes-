@@ -1,91 +1,199 @@
+/* =========================================================================
+ *  Parser.cup  —  Especificación CUP (LALR) para el DSL de Topologías de Red
+ *
+ *  Para generar Parser.java y sym.java ejecutar (desde src/compilador/parser/):
+ *      java -jar ../../../lib/java-cup-11b.jar -parser Parser -symbols sym parser.cup
+ * ========================================================================= */
+
 package compilador.parser;
 
-import java_cup.runtime.*;
+import compilador.lexer.*;
 import compilador.ast.*;
-import java.util.ArrayList;
-import java.util.List;
+import compilador.errors.*;
+import java.util.*;
 
+/* ── Código del parser (métodos override + manejo de errores) ──────── */
 parser code {:
-    // Manejo de errores de sintaxis
-    public void syntax_error(Symbol s) {
-        System.err.println("ERROR sintáctico: '" + s.value + "' en línea " + s.left + ", columna " + s.right);
+
+    /** Lista de errores sintácticos acumulados durante el análisis */
+    private List<CompilerError> parseErrors = new ArrayList<>();
+
+    public List<CompilerError> getParseErrors() {
+        return parseErrors;
     }
-    public void unrecovered_syntax_error(Symbol s) throws java.lang.Exception {
-        System.err.println("ERROR sintáctico irrecuperable: '" + s.value + "' en línea " + s.left + ", columna " + s.right);
+
+    public boolean hasSyntaxErrors() {
+        return !parseErrors.isEmpty();
+    }
+
+    /**
+     * Se llama cuando CUP detecta un token inesperado.
+     */
+    @Override
+    public void syntax_error(java_cup.runtime.Symbol cur_token) {
+        Token tok = (cur_token.value instanceof Token) ? (Token) cur_token.value : null;
+        int line = tok != null ? tok.line : 0;
+        int col  = tok != null ? tok.column : 0;
+        String val = tok != null ? tok.value : "?";
+        String msg = "Error de sintaxis cerca de '" + val + "'";
+        parseErrors.add(new CompilerError(ErrorType.SINTACTICO, msg, line, col));
+    }
+
+    /**
+     * Se llama cuando el parser no puede recuperarse del error.
+     */
+    @Override
+    public void unrecovered_syntax_error(java_cup.runtime.Symbol cur_token) {
+        Token tok = (cur_token.value instanceof Token) ? (Token) cur_token.value : null;
+        int line = tok != null ? tok.line : 0;
+        int col  = tok != null ? tok.column : 0;
+        String msg = "Error irrecuperable — análisis detenido";
+        parseErrors.add(new CompilerError(ErrorType.SINTACTICO, msg, line, col));
     }
 :}
 
-/* Terminales (tokens de JFlex) */
-terminal String RED, ROUTER, FIREWALL, SWITCH, SWITCHL3, SERVER, PC, LAPTOP, MOBILE, ACCESSPOINT, INTERNET;
-terminal String INTERFAZ, IP_KW, CONECTAR, TIPO, WEB, DATABASE, APP;
-terminal String FLECHA, PUNTO, LLAVE_A, LLAVE_C, PYC;
-terminal String DIRECCION_IP, IDENTIFICADOR;
+/* =========================================================================
+ *  TERMINALES — deben coincidir exactamente con los TokenType del Lexer
+ * ========================================================================= */
+terminal Token RED;
+terminal Token ROUTER, FIREWALL, SWITCHL3, SWITCH;
+terminal Token SERVER, PC, LAPTOP, MOBILE, ACCESSPOINT, INTERNET;
+terminal Token INTERFAZ, CONECTAR, TIPO;
+terminal Token WEB, DATABASE, APP;
+terminal Token ID, IP_ADDRESS;
+terminal Token LBRACE, RBRACE, SEMICOLON, ARROW, DOT;
 
-/* No terminales */
-non terminal NodoRed programa;
-non terminal Object cuerpo_red; // Puede ser un wrapper o lista
-non terminal List<NodoDispositivo> lista_dispositivos;
-non terminal NodoDispositivo dispositivo;
-non terminal String tipo_server;
-non terminal List<NodoInterfaz> lista_interfaces;
-non terminal NodoInterfaz interfaz;
-non terminal List<NodoConexion> lista_conexiones;
-non terminal NodoConexion conexion;
+/* =========================================================================
+ *  NO TERMINALES — y sus tipos Java correspondientes
+ * ========================================================================= */
+non terminal NetworkNode       programa;
+non terminal List              declaraciones;
+non terminal DeviceNode        dispositivo;
+non terminal String            tipo_disp, subtipo;
+non terminal List              lista_ifaces;
+non terminal InterfaceNode     interfaz;
+non terminal ConnectionNode    conexion;
 
-/* Precedencia y asociatividad (si aplica) */
+/* =========================================================================
+ *  SÍMBOLO INICIAL
+ * ========================================================================= */
+start with programa;
 
-/* Reglas de producción */
+/* =========================================================================
+ *  PRODUCCIONES + ACCIONES SEMÁNTICAS (construcción del AST)
+ * ========================================================================= */
 
-programa ::= RED IDENTIFICADOR:id LLAVE_A cuerpo_red:c LLAVE_C
-    {: RESULT = new NodoRed(id, ((Object[])c)[0], ((Object[])c)[1]); :};
+/* ── Producción raíz ───────────────────────────────────────────────── */
+programa ::=
+    RED:r ID:name LBRACE declaraciones:decls RBRACE
+    {:
+        List<DeviceNode>     devs   = new ArrayList<>();
+        List<ConnectionNode> conns  = new ArrayList<>();
+        for (Object item : decls) {
+            if (item instanceof DeviceNode)          devs.add((DeviceNode) item);
+            else if (item instanceof ConnectionNode) conns.add((ConnectionNode) item);
+        }
+        RESULT = new NetworkNode(name.value, devs, conns, r.line, r.column);
+    :}
+    ;
 
-cuerpo_red ::= lista_dispositivos:ld lista_conexiones:lc
-    {: RESULT = new Object[]{ld, lc}; :};
+/* ── Declaraciones: lista de dispositivos y conexiones ─────────────── */
+declaraciones ::=
+    declaraciones:list dispositivo:d
+    {:
+        list.add(d);
+        RESULT = list;
+    :}
+    |
+    declaraciones:list conexion:c
+    {:
+        list.add(c);
+        RESULT = list;
+    :}
+    |
+    /* lista vacía */
+    {:
+        RESULT = new ArrayList();
+    :}
+    ;
 
-lista_dispositivos ::= dispositivo:d
-    {: List<NodoDispositivo> l = new ArrayList<>(); l.add(d); RESULT = l; :}
-    | lista_dispositivos:ld dispositivo:d
-    {: ld.add(d); RESULT = ld; :};
+/* ── Dispositivos ───────────────────────────────────────────────────── */
+dispositivo ::=
+    tipo_disp:tipo ID:name LBRACE lista_ifaces:ifaces RBRACE
+    {:
+        DeviceType dt = DeviceType.fromString(tipo, null);
+        RESULT = new DeviceNode(dt, name.value,
+                                (List<InterfaceNode>) ifaces,
+                                name.line, name.column);
+    :}
+    |
+    SERVER:s ID:name TIPO subtipo:sub LBRACE lista_ifaces:ifaces RBRACE
+    {:
+        DeviceType dt = DeviceType.fromString("server", sub);
+        RESULT = new DeviceNode(dt, name.value,
+                                (List<InterfaceNode>) ifaces,
+                                s.line, s.column);
+    :}
+    ;
 
-dispositivo ::= ROUTER IDENTIFICADOR:id LLAVE_A lista_interfaces:li LLAVE_C
-    {: RESULT = new NodoRouter(id, li); :}
-    | FIREWALL IDENTIFICADOR:id LLAVE_A lista_interfaces:li LLAVE_C
-    {: RESULT = new NodoFirewall(id, li); :}
-    | SWITCH IDENTIFICADOR:id LLAVE_A lista_interfaces:li LLAVE_C
-    {: RESULT = new NodoSwitch(id, li); :}
-    | SWITCHL3 IDENTIFICADOR:id LLAVE_A lista_interfaces:li LLAVE_C
-    {: RESULT = new NodoSwitchL3(id, li); :}
-    | SERVER IDENTIFICADOR:id TIPO tipo_server:ts LLAVE_A lista_interfaces:li LLAVE_C
-    {: RESULT = new NodoServidor(id, ts, li); :}
-    | PC IDENTIFICADOR:id LLAVE_A lista_interfaces:li LLAVE_C
-    {: RESULT = new NodoPC(id, li); :}
-    | LAPTOP IDENTIFICADOR:id LLAVE_A lista_interfaces:li LLAVE_C
-    {: RESULT = new NodoLaptop(id, li); :}
-    | MOBILE IDENTIFICADOR:id LLAVE_A lista_interfaces:li LLAVE_C
-    {: RESULT = new NodoMobile(id, li); :}
-    | ACCESSPOINT IDENTIFICADOR:id LLAVE_A lista_interfaces:li LLAVE_C
-    {: RESULT = new NodoAccessPoint(id, li); :}
-    | INTERNET IDENTIFICADOR:id LLAVE_A lista_interfaces:li LLAVE_C
-    {: RESULT = new NodoInternet(id, li); :};
+tipo_disp ::=
+    ROUTER:t      {: RESULT = t.value; :}
+    | FIREWALL:t  {: RESULT = t.value; :}
+    | SWITCHL3:t  {: RESULT = t.value; :}
+    | SWITCH:t    {: RESULT = t.value; :}
+    | PC:t        {: RESULT = t.value; :}
+    | LAPTOP:t    {: RESULT = t.value; :}
+    | MOBILE:t    {: RESULT = t.value; :}
+    | ACCESSPOINT:t {: RESULT = t.value; :}
+    | INTERNET:t  {: RESULT = t.value; :}
+    ;
 
-tipo_server ::= WEB {: RESULT = "web"; :}
-    | DATABASE {: RESULT = "database"; :}
-    | APP {: RESULT = "app"; :};
+subtipo ::=
+    WEB:t      {: RESULT = t.value; :}
+    | DATABASE:t {: RESULT = t.value; :}
+    | APP:t    {: RESULT = t.value; :}
+    ;
 
-lista_interfaces ::= interfaz:i
-    {: List<NodoInterfaz> l = new ArrayList<>(); l.add(i); RESULT = l; :}
-    | lista_interfaces:li interfaz:i
-    {: li.add(i); RESULT = li; :};
+/* ── Interfaces ─────────────────────────────────────────────────────── */
+lista_ifaces ::=
+    lista_ifaces:list interfaz:i
+    {:
+        list.add(i);
+        RESULT = list;
+    :}
+    |
+    /* lista vacía */
+    {:
+        RESULT = new ArrayList();
+    :}
+    ;
 
-interfaz ::= INTERFAZ IDENTIFICADOR:id PYC
-    {: RESULT = new NodoInterfaz(id, null, idleft, idright); :}
-    | INTERFAZ IDENTIFICADOR:id IP_KW DIRECCION_IP:ip PYC
-    {: RESULT = new NodoInterfaz(id, ip, idleft, idright); :};
+interfaz ::=
+    /* Sin IP: interfaz g0/0; */
+    INTERFAZ:kw ID:name SEMICOLON
+    {:
+        RESULT = new InterfaceNode(name.value, null, kw.line, kw.column);
+    :}
+    |
+    /* Con IP: interfaz g0/0 ip 10.0.0.1/30; */
+    INTERFAZ:kw ID:name ID:ip_kw IP_ADDRESS:addr SEMICOLON
+    {:
+        RESULT = new InterfaceNode(name.value, addr.value, kw.line, kw.column);
+    :}
+    ;
 
-lista_conexiones ::= /* vacío */
-    {: RESULT = new ArrayList<>(); :}
-    | lista_conexiones:lc conexion:c
-    {: lc.add(c); RESULT = lc; :};
-
-conexion ::= CONECTAR IDENTIFICADOR:d1 PUNTO IDENTIFICADOR:i1 FLECHA IDENTIFICADOR:d2 PUNTO IDENTIFICADOR:i2 PYC
-    {: RESULT = new NodoConexion(d1, i1, d2, i2, d1left, d1right); :};
+/* ── Conexiones ─────────────────────────────────────────────────────── */
+conexion ::=
+    CONECTAR:kw
+    ID:srcDev  DOT  ID:srcIf
+    ARROW
+    ID:dstDev  DOT  ID:dstIf
+    SEMICOLON
+    {:
+        RESULT = new ConnectionNode(
+            srcDev.value,  srcIf.value,
+            dstDev.value,  dstIf.value,
+            kw.line, kw.column
+        );
+    :}
+    ;

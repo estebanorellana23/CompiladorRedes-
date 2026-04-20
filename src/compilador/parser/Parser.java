@@ -5,10 +5,10 @@
 
 package compilador.parser;
 
-import java_cup.runtime.*;
+import compilador.lexer.*;
 import compilador.ast.*;
-import java.util.ArrayList;
-import java.util.List;
+import compilador.errors.*;
+import java.util.*;
 import java_cup.runtime.XMLElement;
 
 /** CUP v0.11b 20160615 (GIT 4ac7450) generated parser.
@@ -34,14 +34,14 @@ public class Parser extends java_cup.runtime.lr_parser {
   /** Production table. */
   protected static final short _production_table[][] = 
     unpackFromStrings(new String[] {
-    "\000\031\000\002\002\007\000\002\002\004\000\002\003" +
-    "\004\000\002\004\003\000\002\004\004\000\002\005\007" +
-    "\000\002\005\007\000\002\005\007\000\002\005\007\000" +
-    "\002\005\011\000\002\005\007\000\002\005\007\000\002" +
-    "\005\007\000\002\005\007\000\002\005\007\000\002\006" +
-    "\003\000\002\006\003\000\002\006\003\000\002\007\003" +
-    "\000\002\007\004\000\002\010\005\000\002\010\007\000" +
-    "\002\011\002\000\002\011\004\000\002\012\013" });
+    "\000\030\000\002\002\004\000\002\002\007\000\002\003" +
+    "\004\000\002\003\004\000\002\003\002\000\002\004\007" +
+    "\000\002\004\011\000\002\005\003\000\002\005\003\000" +
+    "\002\005\003\000\002\005\003\000\002\005\003\000\002" +
+    "\005\003\000\002\005\003\000\002\005\003\000\002\005" +
+    "\003\000\002\006\003\000\002\006\003\000\002\006\003" +
+    "\000\002\007\004\000\002\007\002\000\002\010\005\000" +
+    "\002\010\007\000\002\011\013" });
 
   /** Access to production table. */
   public short[][] production_table() {return _production_table;}
@@ -49,72 +49,43 @@ public class Parser extends java_cup.runtime.lr_parser {
   /** Parse-action table. */
   protected static final short[][] _action_table = 
     unpackFromStrings(new String[] {
-    "\000\125\000\004\004\005\001\002\000\004\002\127\001" +
-    "\002\000\004\034\006\001\002\000\004\030\007\001\002" +
-    "\000\026\005\022\006\024\007\017\010\023\011\013\012" +
-    "\014\013\012\014\010\015\011\016\021\001\002\000\004" +
-    "\034\123\001\002\000\004\034\117\001\002\000\004\034" +
-    "\113\001\002\000\004\034\102\001\002\000\004\034\076" +
-    "\001\002\000\004\031\075\001\002\000\032\005\ufffe\006" +
-    "\ufffe\007\ufffe\010\ufffe\011\ufffe\012\ufffe\013\ufffe\014\ufffe" +
-    "\015\ufffe\016\ufffe\021\ufffe\031\ufffe\001\002\000\004\034" +
-    "\071\001\002\000\032\005\022\006\024\007\017\010\023" +
-    "\011\013\012\014\013\012\014\010\015\011\016\021\021" +
-    "\uffeb\031\uffeb\001\002\000\004\034\051\001\002\000\004" +
-    "\034\045\001\002\000\004\034\041\001\002\000\004\034" +
-    "\025\001\002\000\004\030\026\001\002\000\004\017\030" +
-    "\001\002\000\006\017\030\031\040\001\002\000\004\034" +
-    "\032\001\002\000\006\017\uffef\031\uffef\001\002\000\006" +
-    "\020\033\032\034\001\002\000\004\033\035\001\002\000" +
-    "\006\017\uffed\031\uffed\001\002\000\004\032\036\001\002" +
-    "\000\006\017\uffec\031\uffec\001\002\000\006\017\uffee\031" +
-    "\uffee\001\002\000\032\005\ufffb\006\ufffb\007\ufffb\010\ufffb" +
-    "\011\ufffb\012\ufffb\013\ufffb\014\ufffb\015\ufffb\016\ufffb\021" +
-    "\ufffb\031\ufffb\001\002\000\004\030\042\001\002\000\004" +
-    "\017\030\001\002\000\006\017\030\031\044\001\002\000" +
-    "\032\005\ufff9\006\ufff9\007\ufff9\010\ufff9\011\ufff9\012\ufff9" +
-    "\013\ufff9\014\ufff9\015\ufff9\016\ufff9\021\ufff9\031\ufff9\001" +
-    "\002\000\004\030\046\001\002\000\004\017\030\001\002" +
-    "\000\006\017\030\031\050\001\002\000\032\005\ufffc\006" +
-    "\ufffc\007\ufffc\010\ufffc\011\ufffc\012\ufffc\013\ufffc\014\ufffc" +
-    "\015\ufffc\016\ufffc\021\ufffc\031\ufffc\001\002\000\004\030" +
-    "\052\001\002\000\004\017\030\001\002\000\006\017\030" +
-    "\031\054\001\002\000\032\005\ufff3\006\ufff3\007\ufff3\010" +
-    "\ufff3\011\ufff3\012\ufff3\013\ufff3\014\ufff3\015\ufff3\016\ufff3" +
-    "\021\ufff3\031\ufff3\001\002\000\006\021\057\031\uffff\001" +
-    "\002\000\032\005\ufffd\006\ufffd\007\ufffd\010\ufffd\011\ufffd" +
-    "\012\ufffd\013\ufffd\014\ufffd\015\ufffd\016\ufffd\021\ufffd\031" +
-    "\ufffd\001\002\000\004\034\061\001\002\000\006\021\uffea" +
-    "\031\uffea\001\002\000\004\027\062\001\002\000\004\034" +
-    "\063\001\002\000\004\026\064\001\002\000\004\034\065" +
-    "\001\002\000\004\027\066\001\002\000\004\034\067\001" +
-    "\002\000\004\032\070\001\002\000\006\021\uffe9\031\uffe9" +
-    "\001\002\000\004\030\072\001\002\000\004\017\030\001" +
-    "\002\000\006\017\030\031\074\001\002\000\032\005\ufffa" +
-    "\006\ufffa\007\ufffa\010\ufffa\011\ufffa\012\ufffa\013\ufffa\014" +
-    "\ufffa\015\ufffa\016\ufffa\021\ufffa\031\ufffa\001\002\000\004" +
-    "\002\001\001\002\000\004\030\077\001\002\000\004\017" +
-    "\030\001\002\000\006\017\030\031\101\001\002\000\032" +
-    "\005\ufff7\006\ufff7\007\ufff7\010\ufff7\011\ufff7\012\ufff7\013" +
-    "\ufff7\014\ufff7\015\ufff7\016\ufff7\021\ufff7\031\ufff7\001\002" +
-    "\000\004\022\103\001\002\000\010\023\107\024\105\025" +
-    "\106\001\002\000\004\030\110\001\002\000\004\030\ufff1" +
-    "\001\002\000\004\030\ufff0\001\002\000\004\030\ufff2\001" +
-    "\002\000\004\017\030\001\002\000\006\017\030\031\112" +
-    "\001\002\000\032\005\ufff8\006\ufff8\007\ufff8\010\ufff8\011" +
-    "\ufff8\012\ufff8\013\ufff8\014\ufff8\015\ufff8\016\ufff8\021\ufff8" +
-    "\031\ufff8\001\002\000\004\030\114\001\002\000\004\017" +
-    "\030\001\002\000\006\017\030\031\116\001\002\000\032" +
-    "\005\ufff6\006\ufff6\007\ufff6\010\ufff6\011\ufff6\012\ufff6\013" +
-    "\ufff6\014\ufff6\015\ufff6\016\ufff6\021\ufff6\031\ufff6\001\002" +
-    "\000\004\030\120\001\002\000\004\017\030\001\002\000" +
-    "\006\017\030\031\122\001\002\000\032\005\ufff4\006\ufff4" +
-    "\007\ufff4\010\ufff4\011\ufff4\012\ufff4\013\ufff4\014\ufff4\015" +
-    "\ufff4\016\ufff4\021\ufff4\031\ufff4\001\002\000\004\030\124" +
-    "\001\002\000\004\017\030\001\002\000\006\017\030\031" +
-    "\126\001\002\000\032\005\ufff5\006\ufff5\007\ufff5\010\ufff5" +
-    "\011\ufff5\012\ufff5\013\ufff5\014\ufff5\015\ufff5\016\ufff5\021" +
-    "\ufff5\031\ufff5\001\002\000\004\002\000\001\002" });
+    "\000\062\000\004\004\005\001\002\000\004\002\064\001" +
+    "\002\000\004\025\006\001\002\000\004\027\007\001\002" +
+    "\000\032\005\ufffd\006\ufffd\007\ufffd\010\ufffd\011\ufffd\012" +
+    "\ufffd\013\ufffd\014\ufffd\015\ufffd\016\ufffd\020\ufffd\030\ufffd" +
+    "\001\002\000\032\005\024\006\027\007\025\010\020\011" +
+    "\014\012\015\013\013\014\011\015\012\016\023\020\016" +
+    "\030\026\001\002\000\004\025\ufff4\001\002\000\004\025" +
+    "\ufff3\001\002\000\004\025\ufff5\001\002\000\004\025\053" +
+    "\001\002\000\004\025\ufff6\001\002\000\004\025\043\001" +
+    "\002\000\032\005\ufffe\006\ufffe\007\ufffe\010\ufffe\011\ufffe" +
+    "\012\ufffe\013\ufffe\014\ufffe\015\ufffe\016\ufffe\020\ufffe\030" +
+    "\ufffe\001\002\000\004\025\ufff7\001\002\000\032\005\uffff" +
+    "\006\uffff\007\uffff\010\uffff\011\uffff\012\uffff\013\uffff\014" +
+    "\uffff\015\uffff\016\uffff\020\uffff\030\uffff\001\002\000\004" +
+    "\025\030\001\002\000\004\025\ufff2\001\002\000\004\025" +
+    "\ufffa\001\002\000\004\025\ufff8\001\002\000\004\002\000" +
+    "\001\002\000\004\025\ufff9\001\002\000\004\027\031\001" +
+    "\002\000\006\017\uffed\030\uffed\001\002\000\006\017\033" +
+    "\030\034\001\002\000\004\025\036\001\002\000\032\005" +
+    "\ufffc\006\ufffc\007\ufffc\010\ufffc\011\ufffc\012\ufffc\013\ufffc" +
+    "\014\ufffc\015\ufffc\016\ufffc\020\ufffc\030\ufffc\001\002\000" +
+    "\006\017\uffee\030\uffee\001\002\000\006\025\037\031\040" +
+    "\001\002\000\004\026\041\001\002\000\006\017\uffec\030" +
+    "\uffec\001\002\000\004\031\042\001\002\000\006\017\uffeb" +
+    "\030\uffeb\001\002\000\004\033\044\001\002\000\004\025" +
+    "\045\001\002\000\004\032\046\001\002\000\004\025\047" +
+    "\001\002\000\004\033\050\001\002\000\004\025\051\001" +
+    "\002\000\004\031\052\001\002\000\032\005\uffea\006\uffea" +
+    "\007\uffea\010\uffea\011\uffea\012\uffea\013\uffea\014\uffea\015" +
+    "\uffea\016\uffea\020\uffea\030\uffea\001\002\000\004\021\054" +
+    "\001\002\000\010\022\060\023\056\024\057\001\002\000" +
+    "\004\027\061\001\002\000\004\027\ufff0\001\002\000\004" +
+    "\027\uffef\001\002\000\004\027\ufff1\001\002\000\006\017" +
+    "\uffed\030\uffed\001\002\000\006\017\033\030\063\001\002" +
+    "\000\032\005\ufffb\006\ufffb\007\ufffb\010\ufffb\011\ufffb\012" +
+    "\ufffb\013\ufffb\014\ufffb\015\ufffb\016\ufffb\020\ufffb\030\ufffb" +
+    "\001\002\000\004\002\001\001\002" });
 
   /** Access to parse-action table. */
   public short[][] action_table() {return _action_table;}
@@ -122,39 +93,24 @@ public class Parser extends java_cup.runtime.lr_parser {
   /** <code>reduce_goto</code> table. */
   protected static final short[][] _reduce_table = 
     unpackFromStrings(new String[] {
-    "\000\125\000\004\002\003\001\001\000\002\001\001\000" +
-    "\002\001\001\000\002\001\001\000\010\003\014\004\017" +
-    "\005\015\001\001\000\002\001\001\000\002\001\001\000" +
-    "\002\001\001\000\002\001\001\000\002\001\001\000\002" +
-    "\001\001\000\002\001\001\000\002\001\001\000\006\005" +
-    "\055\011\054\001\001\000\002\001\001\000\002\001\001" +
-    "\000\002\001\001\000\002\001\001\000\002\001\001\000" +
-    "\006\007\026\010\030\001\001\000\004\010\036\001\001" +
+    "\000\062\000\004\002\003\001\001\000\002\001\001\000" +
+    "\002\001\001\000\002\001\001\000\004\003\007\001\001" +
+    "\000\010\004\020\005\021\011\016\001\001\000\002\001" +
+    "\001\000\002\001\001\000\002\001\001\000\002\001\001" +
     "\000\002\001\001\000\002\001\001\000\002\001\001\000" +
     "\002\001\001\000\002\001\001\000\002\001\001\000\002" +
     "\001\001\000\002\001\001\000\002\001\001\000\002\001" +
-    "\001\000\006\007\042\010\030\001\001\000\004\010\036" +
-    "\001\001\000\002\001\001\000\002\001\001\000\006\007" +
-    "\046\010\030\001\001\000\004\010\036\001\001\000\002" +
-    "\001\001\000\002\001\001\000\006\007\052\010\030\001" +
-    "\001\000\004\010\036\001\001\000\002\001\001\000\004" +
-    "\012\057\001\001\000\002\001\001\000\002\001\001\000" +
+    "\001\000\002\001\001\000\002\001\001\000\004\007\031" +
+    "\001\001\000\004\010\034\001\001\000\002\001\001\000" +
     "\002\001\001\000\002\001\001\000\002\001\001\000\002" +
     "\001\001\000\002\001\001\000\002\001\001\000\002\001" +
     "\001\000\002\001\001\000\002\001\001\000\002\001\001" +
-    "\000\006\007\072\010\030\001\001\000\004\010\036\001" +
-    "\001\000\002\001\001\000\002\001\001\000\002\001\001" +
-    "\000\006\007\077\010\030\001\001\000\004\010\036\001" +
-    "\001\000\002\001\001\000\002\001\001\000\004\006\103" +
-    "\001\001\000\002\001\001\000\002\001\001\000\002\001" +
-    "\001\000\002\001\001\000\006\007\110\010\030\001\001" +
-    "\000\004\010\036\001\001\000\002\001\001\000\002\001" +
-    "\001\000\006\007\114\010\030\001\001\000\004\010\036" +
-    "\001\001\000\002\001\001\000\002\001\001\000\006\007" +
-    "\120\010\030\001\001\000\004\010\036\001\001\000\002" +
-    "\001\001\000\002\001\001\000\006\007\124\010\030\001" +
-    "\001\000\004\010\036\001\001\000\002\001\001\000\002" +
-    "\001\001" });
+    "\000\002\001\001\000\002\001\001\000\002\001\001\000" +
+    "\002\001\001\000\002\001\001\000\002\001\001\000\004" +
+    "\006\054\001\001\000\002\001\001\000\002\001\001\000" +
+    "\002\001\001\000\002\001\001\000\004\007\061\001\001" +
+    "\000\004\010\034\001\001\000\002\001\001\000\002\001" +
+    "\001" });
 
   /** Access to <code>reduce_goto</code> table. */
   public short[][] reduce_table() {return _reduce_table;}
@@ -183,7 +139,7 @@ public class Parser extends java_cup.runtime.lr_parser {
   /** Indicates start state. */
   public int start_state() {return 0;}
   /** Indicates start production. */
-  public int start_production() {return 1;}
+  public int start_production() {return 0;}
 
   /** <code>EOF</code> Symbol index. */
   public int EOF_sym() {return 0;}
@@ -193,12 +149,41 @@ public class Parser extends java_cup.runtime.lr_parser {
 
 
 
-    // Manejo de errores de sintaxis
-    public void syntax_error(Symbol s) {
-        System.err.println("ERROR sintáctico: '" + s.value + "' en línea " + s.left + ", columna " + s.right);
+
+    /** Lista de errores sintácticos acumulados durante el análisis */
+    private List<CompilerError> parseErrors = new ArrayList<>();
+
+    public List<CompilerError> getParseErrors() {
+        return parseErrors;
     }
-    public void unrecovered_syntax_error(Symbol s) throws java.lang.Exception {
-        System.err.println("ERROR sintáctico irrecuperable: '" + s.value + "' en línea " + s.left + ", columna " + s.right);
+
+    public boolean hasSyntaxErrors() {
+        return !parseErrors.isEmpty();
+    }
+
+    /**
+     * Se llama cuando CUP detecta un token inesperado.
+     */
+    @Override
+    public void syntax_error(java_cup.runtime.Symbol cur_token) {
+        Token tok = (cur_token.value instanceof Token) ? (Token) cur_token.value : null;
+        int line = tok != null ? tok.line : 0;
+        int col  = tok != null ? tok.column : 0;
+        String val = tok != null ? tok.value : "?";
+        String msg = "Error de sintaxis cerca de '" + val + "'";
+        parseErrors.add(new CompilerError(ErrorType.SINTACTICO, msg, line, col));
+    }
+
+    /**
+     * Se llama cuando el parser no puede recuperarse del error.
+     */
+    @Override
+    public void unrecovered_syntax_error(java_cup.runtime.Symbol cur_token) {
+        Token tok = (cur_token.value instanceof Token) ? (Token) cur_token.value : null;
+        int line = tok != null ? tok.line : 0;
+        int col  = tok != null ? tok.column : 0;
+        String msg = "Error irrecuperable — análisis detenido";
+        parseErrors.add(new CompilerError(ErrorType.SINTACTICO, msg, line, col));
     }
 
 
@@ -227,27 +212,12 @@ class CUP$Parser$actions {
       switch (CUP$Parser$act_num)
         {
           /*. . . . . . . . . . . . . . . . . . . .*/
-          case 0: // programa ::= RED IDENTIFICADOR LLAVE_A cuerpo_red LLAVE_C 
-            {
-              NodoRed RESULT =null;
-		int idleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-3)).left;
-		int idright = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-3)).right;
-		String id = (String)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-3)).value;
-		int cleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).left;
-		int cright = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).right;
-		Object c = (Object)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-1)).value;
-		 RESULT = new NodoRed(id, ((Object[])c)[0], ((Object[])c)[1]); 
-              CUP$Parser$result = parser.getSymbolFactory().newSymbol("programa",0, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-4)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
-            }
-          return CUP$Parser$result;
-
-          /*. . . . . . . . . . . . . . . . . . . .*/
-          case 1: // $START ::= programa EOF 
+          case 0: // $START ::= programa EOF 
             {
               Object RESULT =null;
 		int start_valleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).left;
 		int start_valright = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).right;
-		NodoRed start_val = (NodoRed)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-1)).value;
+		NetworkNode start_val = (NetworkNode)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-1)).value;
 		RESULT = start_val;
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("$START",0, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }
@@ -256,323 +226,367 @@ class CUP$Parser$actions {
           return CUP$Parser$result;
 
           /*. . . . . . . . . . . . . . . . . . . .*/
-          case 2: // cuerpo_red ::= lista_dispositivos lista_conexiones 
+          case 1: // programa ::= RED ID LBRACE declaraciones RBRACE 
             {
-              Object RESULT =null;
-		int ldleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).left;
-		int ldright = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).right;
-		List<NodoDispositivo> ld = (List<NodoDispositivo>)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-1)).value;
-		int lcleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).left;
-		int lcright = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).right;
-		List<NodoConexion> lc = (List<NodoConexion>)((java_cup.runtime.Symbol) CUP$Parser$stack.peek()).value;
-		 RESULT = new Object[]{ld, lc}; 
-              CUP$Parser$result = parser.getSymbolFactory().newSymbol("cuerpo_red",1, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
+              NetworkNode RESULT =null;
+		int rleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-4)).left;
+		int rright = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-4)).right;
+		Token r = (Token)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-4)).value;
+		int nameleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-3)).left;
+		int nameright = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-3)).right;
+		Token name = (Token)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-3)).value;
+		int declsleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).left;
+		int declsright = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).right;
+		List decls = (List)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-1)).value;
+		
+        List<DeviceNode>     devs   = new ArrayList<>();
+        List<ConnectionNode> conns  = new ArrayList<>();
+        for (Object item : decls) {
+            if (item instanceof DeviceNode)          devs.add((DeviceNode) item);
+            else if (item instanceof ConnectionNode) conns.add((ConnectionNode) item);
+        }
+        RESULT = new NetworkNode(name.value, devs, conns, r.line, r.column);
+    
+              CUP$Parser$result = parser.getSymbolFactory().newSymbol("programa",0, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-4)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }
           return CUP$Parser$result;
 
           /*. . . . . . . . . . . . . . . . . . . .*/
-          case 3: // lista_dispositivos ::= dispositivo 
+          case 2: // declaraciones ::= declaraciones dispositivo 
             {
-              List<NodoDispositivo> RESULT =null;
+              List RESULT =null;
+		int listleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).left;
+		int listright = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).right;
+		List list = (List)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-1)).value;
 		int dleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).left;
 		int dright = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).right;
-		NodoDispositivo d = (NodoDispositivo)((java_cup.runtime.Symbol) CUP$Parser$stack.peek()).value;
-		 List<NodoDispositivo> l = new ArrayList<>(); l.add(d); RESULT = l; 
-              CUP$Parser$result = parser.getSymbolFactory().newSymbol("lista_dispositivos",2, ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
+		DeviceNode d = (DeviceNode)((java_cup.runtime.Symbol) CUP$Parser$stack.peek()).value;
+		
+        list.add(d);
+        RESULT = list;
+    
+              CUP$Parser$result = parser.getSymbolFactory().newSymbol("declaraciones",1, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }
           return CUP$Parser$result;
 
           /*. . . . . . . . . . . . . . . . . . . .*/
-          case 4: // lista_dispositivos ::= lista_dispositivos dispositivo 
+          case 3: // declaraciones ::= declaraciones conexion 
             {
-              List<NodoDispositivo> RESULT =null;
-		int ldleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).left;
-		int ldright = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).right;
-		List<NodoDispositivo> ld = (List<NodoDispositivo>)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-1)).value;
-		int dleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).left;
-		int dright = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).right;
-		NodoDispositivo d = (NodoDispositivo)((java_cup.runtime.Symbol) CUP$Parser$stack.peek()).value;
-		 ld.add(d); RESULT = ld; 
-              CUP$Parser$result = parser.getSymbolFactory().newSymbol("lista_dispositivos",2, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
+              List RESULT =null;
+		int listleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).left;
+		int listright = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).right;
+		List list = (List)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-1)).value;
+		int cleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).left;
+		int cright = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).right;
+		ConnectionNode c = (ConnectionNode)((java_cup.runtime.Symbol) CUP$Parser$stack.peek()).value;
+		
+        list.add(c);
+        RESULT = list;
+    
+              CUP$Parser$result = parser.getSymbolFactory().newSymbol("declaraciones",1, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }
           return CUP$Parser$result;
 
           /*. . . . . . . . . . . . . . . . . . . .*/
-          case 5: // dispositivo ::= ROUTER IDENTIFICADOR LLAVE_A lista_interfaces LLAVE_C 
+          case 4: // declaraciones ::= 
             {
-              NodoDispositivo RESULT =null;
-		int idleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-3)).left;
-		int idright = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-3)).right;
-		String id = (String)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-3)).value;
-		int lileft = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).left;
-		int liright = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).right;
-		List<NodoInterfaz> li = (List<NodoInterfaz>)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-1)).value;
-		 RESULT = new NodoRouter(id, li); 
-              CUP$Parser$result = parser.getSymbolFactory().newSymbol("dispositivo",3, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-4)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
+              List RESULT =null;
+		
+        RESULT = new ArrayList();
+    
+              CUP$Parser$result = parser.getSymbolFactory().newSymbol("declaraciones",1, ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }
           return CUP$Parser$result;
 
           /*. . . . . . . . . . . . . . . . . . . .*/
-          case 6: // dispositivo ::= FIREWALL IDENTIFICADOR LLAVE_A lista_interfaces LLAVE_C 
+          case 5: // dispositivo ::= tipo_disp ID LBRACE lista_ifaces RBRACE 
             {
-              NodoDispositivo RESULT =null;
-		int idleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-3)).left;
-		int idright = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-3)).right;
-		String id = (String)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-3)).value;
-		int lileft = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).left;
-		int liright = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).right;
-		List<NodoInterfaz> li = (List<NodoInterfaz>)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-1)).value;
-		 RESULT = new NodoFirewall(id, li); 
-              CUP$Parser$result = parser.getSymbolFactory().newSymbol("dispositivo",3, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-4)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
+              DeviceNode RESULT =null;
+		int tipoleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-4)).left;
+		int tiporight = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-4)).right;
+		String tipo = (String)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-4)).value;
+		int nameleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-3)).left;
+		int nameright = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-3)).right;
+		Token name = (Token)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-3)).value;
+		int ifacesleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).left;
+		int ifacesright = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).right;
+		List ifaces = (List)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-1)).value;
+		
+        DeviceType dt = DeviceType.fromString(tipo, null);
+        RESULT = new DeviceNode(dt, name.value,
+                                (List<InterfaceNode>) ifaces,
+                                name.line, name.column);
+    
+              CUP$Parser$result = parser.getSymbolFactory().newSymbol("dispositivo",2, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-4)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }
           return CUP$Parser$result;
 
           /*. . . . . . . . . . . . . . . . . . . .*/
-          case 7: // dispositivo ::= SWITCH IDENTIFICADOR LLAVE_A lista_interfaces LLAVE_C 
+          case 6: // dispositivo ::= SERVER ID TIPO subtipo LBRACE lista_ifaces RBRACE 
             {
-              NodoDispositivo RESULT =null;
-		int idleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-3)).left;
-		int idright = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-3)).right;
-		String id = (String)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-3)).value;
-		int lileft = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).left;
-		int liright = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).right;
-		List<NodoInterfaz> li = (List<NodoInterfaz>)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-1)).value;
-		 RESULT = new NodoSwitch(id, li); 
-              CUP$Parser$result = parser.getSymbolFactory().newSymbol("dispositivo",3, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-4)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
+              DeviceNode RESULT =null;
+		int sleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-6)).left;
+		int sright = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-6)).right;
+		Token s = (Token)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-6)).value;
+		int nameleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-5)).left;
+		int nameright = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-5)).right;
+		Token name = (Token)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-5)).value;
+		int subleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-3)).left;
+		int subright = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-3)).right;
+		String sub = (String)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-3)).value;
+		int ifacesleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).left;
+		int ifacesright = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).right;
+		List ifaces = (List)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-1)).value;
+		
+        DeviceType dt = DeviceType.fromString("server", sub);
+        RESULT = new DeviceNode(dt, name.value,
+                                (List<InterfaceNode>) ifaces,
+                                s.line, s.column);
+    
+              CUP$Parser$result = parser.getSymbolFactory().newSymbol("dispositivo",2, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-6)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }
           return CUP$Parser$result;
 
           /*. . . . . . . . . . . . . . . . . . . .*/
-          case 8: // dispositivo ::= SWITCHL3 IDENTIFICADOR LLAVE_A lista_interfaces LLAVE_C 
-            {
-              NodoDispositivo RESULT =null;
-		int idleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-3)).left;
-		int idright = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-3)).right;
-		String id = (String)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-3)).value;
-		int lileft = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).left;
-		int liright = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).right;
-		List<NodoInterfaz> li = (List<NodoInterfaz>)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-1)).value;
-		 RESULT = new NodoSwitchL3(id, li); 
-              CUP$Parser$result = parser.getSymbolFactory().newSymbol("dispositivo",3, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-4)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
-            }
-          return CUP$Parser$result;
-
-          /*. . . . . . . . . . . . . . . . . . . .*/
-          case 9: // dispositivo ::= SERVER IDENTIFICADOR TIPO tipo_server LLAVE_A lista_interfaces LLAVE_C 
-            {
-              NodoDispositivo RESULT =null;
-		int idleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-5)).left;
-		int idright = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-5)).right;
-		String id = (String)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-5)).value;
-		int tsleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-3)).left;
-		int tsright = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-3)).right;
-		String ts = (String)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-3)).value;
-		int lileft = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).left;
-		int liright = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).right;
-		List<NodoInterfaz> li = (List<NodoInterfaz>)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-1)).value;
-		 RESULT = new NodoServidor(id, ts, li); 
-              CUP$Parser$result = parser.getSymbolFactory().newSymbol("dispositivo",3, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-6)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
-            }
-          return CUP$Parser$result;
-
-          /*. . . . . . . . . . . . . . . . . . . .*/
-          case 10: // dispositivo ::= PC IDENTIFICADOR LLAVE_A lista_interfaces LLAVE_C 
-            {
-              NodoDispositivo RESULT =null;
-		int idleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-3)).left;
-		int idright = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-3)).right;
-		String id = (String)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-3)).value;
-		int lileft = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).left;
-		int liright = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).right;
-		List<NodoInterfaz> li = (List<NodoInterfaz>)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-1)).value;
-		 RESULT = new NodoPC(id, li); 
-              CUP$Parser$result = parser.getSymbolFactory().newSymbol("dispositivo",3, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-4)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
-            }
-          return CUP$Parser$result;
-
-          /*. . . . . . . . . . . . . . . . . . . .*/
-          case 11: // dispositivo ::= LAPTOP IDENTIFICADOR LLAVE_A lista_interfaces LLAVE_C 
-            {
-              NodoDispositivo RESULT =null;
-		int idleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-3)).left;
-		int idright = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-3)).right;
-		String id = (String)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-3)).value;
-		int lileft = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).left;
-		int liright = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).right;
-		List<NodoInterfaz> li = (List<NodoInterfaz>)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-1)).value;
-		 RESULT = new NodoLaptop(id, li); 
-              CUP$Parser$result = parser.getSymbolFactory().newSymbol("dispositivo",3, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-4)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
-            }
-          return CUP$Parser$result;
-
-          /*. . . . . . . . . . . . . . . . . . . .*/
-          case 12: // dispositivo ::= MOBILE IDENTIFICADOR LLAVE_A lista_interfaces LLAVE_C 
-            {
-              NodoDispositivo RESULT =null;
-		int idleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-3)).left;
-		int idright = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-3)).right;
-		String id = (String)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-3)).value;
-		int lileft = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).left;
-		int liright = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).right;
-		List<NodoInterfaz> li = (List<NodoInterfaz>)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-1)).value;
-		 RESULT = new NodoMobile(id, li); 
-              CUP$Parser$result = parser.getSymbolFactory().newSymbol("dispositivo",3, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-4)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
-            }
-          return CUP$Parser$result;
-
-          /*. . . . . . . . . . . . . . . . . . . .*/
-          case 13: // dispositivo ::= ACCESSPOINT IDENTIFICADOR LLAVE_A lista_interfaces LLAVE_C 
-            {
-              NodoDispositivo RESULT =null;
-		int idleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-3)).left;
-		int idright = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-3)).right;
-		String id = (String)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-3)).value;
-		int lileft = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).left;
-		int liright = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).right;
-		List<NodoInterfaz> li = (List<NodoInterfaz>)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-1)).value;
-		 RESULT = new NodoAccessPoint(id, li); 
-              CUP$Parser$result = parser.getSymbolFactory().newSymbol("dispositivo",3, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-4)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
-            }
-          return CUP$Parser$result;
-
-          /*. . . . . . . . . . . . . . . . . . . .*/
-          case 14: // dispositivo ::= INTERNET IDENTIFICADOR LLAVE_A lista_interfaces LLAVE_C 
-            {
-              NodoDispositivo RESULT =null;
-		int idleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-3)).left;
-		int idright = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-3)).right;
-		String id = (String)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-3)).value;
-		int lileft = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).left;
-		int liright = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).right;
-		List<NodoInterfaz> li = (List<NodoInterfaz>)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-1)).value;
-		 RESULT = new NodoInternet(id, li); 
-              CUP$Parser$result = parser.getSymbolFactory().newSymbol("dispositivo",3, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-4)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
-            }
-          return CUP$Parser$result;
-
-          /*. . . . . . . . . . . . . . . . . . . .*/
-          case 15: // tipo_server ::= WEB 
+          case 7: // tipo_disp ::= ROUTER 
             {
               String RESULT =null;
-		 RESULT = "web"; 
-              CUP$Parser$result = parser.getSymbolFactory().newSymbol("tipo_server",4, ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
+		int tleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).left;
+		int tright = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).right;
+		Token t = (Token)((java_cup.runtime.Symbol) CUP$Parser$stack.peek()).value;
+		 RESULT = t.value; 
+              CUP$Parser$result = parser.getSymbolFactory().newSymbol("tipo_disp",3, ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }
           return CUP$Parser$result;
 
           /*. . . . . . . . . . . . . . . . . . . .*/
-          case 16: // tipo_server ::= DATABASE 
+          case 8: // tipo_disp ::= FIREWALL 
             {
               String RESULT =null;
-		 RESULT = "database"; 
-              CUP$Parser$result = parser.getSymbolFactory().newSymbol("tipo_server",4, ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
+		int tleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).left;
+		int tright = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).right;
+		Token t = (Token)((java_cup.runtime.Symbol) CUP$Parser$stack.peek()).value;
+		 RESULT = t.value; 
+              CUP$Parser$result = parser.getSymbolFactory().newSymbol("tipo_disp",3, ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }
           return CUP$Parser$result;
 
           /*. . . . . . . . . . . . . . . . . . . .*/
-          case 17: // tipo_server ::= APP 
+          case 9: // tipo_disp ::= SWITCHL3 
             {
               String RESULT =null;
-		 RESULT = "app"; 
-              CUP$Parser$result = parser.getSymbolFactory().newSymbol("tipo_server",4, ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
+		int tleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).left;
+		int tright = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).right;
+		Token t = (Token)((java_cup.runtime.Symbol) CUP$Parser$stack.peek()).value;
+		 RESULT = t.value; 
+              CUP$Parser$result = parser.getSymbolFactory().newSymbol("tipo_disp",3, ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }
           return CUP$Parser$result;
 
           /*. . . . . . . . . . . . . . . . . . . .*/
-          case 18: // lista_interfaces ::= interfaz 
+          case 10: // tipo_disp ::= SWITCH 
             {
-              List<NodoInterfaz> RESULT =null;
+              String RESULT =null;
+		int tleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).left;
+		int tright = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).right;
+		Token t = (Token)((java_cup.runtime.Symbol) CUP$Parser$stack.peek()).value;
+		 RESULT = t.value; 
+              CUP$Parser$result = parser.getSymbolFactory().newSymbol("tipo_disp",3, ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
+            }
+          return CUP$Parser$result;
+
+          /*. . . . . . . . . . . . . . . . . . . .*/
+          case 11: // tipo_disp ::= PC 
+            {
+              String RESULT =null;
+		int tleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).left;
+		int tright = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).right;
+		Token t = (Token)((java_cup.runtime.Symbol) CUP$Parser$stack.peek()).value;
+		 RESULT = t.value; 
+              CUP$Parser$result = parser.getSymbolFactory().newSymbol("tipo_disp",3, ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
+            }
+          return CUP$Parser$result;
+
+          /*. . . . . . . . . . . . . . . . . . . .*/
+          case 12: // tipo_disp ::= LAPTOP 
+            {
+              String RESULT =null;
+		int tleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).left;
+		int tright = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).right;
+		Token t = (Token)((java_cup.runtime.Symbol) CUP$Parser$stack.peek()).value;
+		 RESULT = t.value; 
+              CUP$Parser$result = parser.getSymbolFactory().newSymbol("tipo_disp",3, ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
+            }
+          return CUP$Parser$result;
+
+          /*. . . . . . . . . . . . . . . . . . . .*/
+          case 13: // tipo_disp ::= MOBILE 
+            {
+              String RESULT =null;
+		int tleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).left;
+		int tright = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).right;
+		Token t = (Token)((java_cup.runtime.Symbol) CUP$Parser$stack.peek()).value;
+		 RESULT = t.value; 
+              CUP$Parser$result = parser.getSymbolFactory().newSymbol("tipo_disp",3, ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
+            }
+          return CUP$Parser$result;
+
+          /*. . . . . . . . . . . . . . . . . . . .*/
+          case 14: // tipo_disp ::= ACCESSPOINT 
+            {
+              String RESULT =null;
+		int tleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).left;
+		int tright = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).right;
+		Token t = (Token)((java_cup.runtime.Symbol) CUP$Parser$stack.peek()).value;
+		 RESULT = t.value; 
+              CUP$Parser$result = parser.getSymbolFactory().newSymbol("tipo_disp",3, ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
+            }
+          return CUP$Parser$result;
+
+          /*. . . . . . . . . . . . . . . . . . . .*/
+          case 15: // tipo_disp ::= INTERNET 
+            {
+              String RESULT =null;
+		int tleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).left;
+		int tright = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).right;
+		Token t = (Token)((java_cup.runtime.Symbol) CUP$Parser$stack.peek()).value;
+		 RESULT = t.value; 
+              CUP$Parser$result = parser.getSymbolFactory().newSymbol("tipo_disp",3, ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
+            }
+          return CUP$Parser$result;
+
+          /*. . . . . . . . . . . . . . . . . . . .*/
+          case 16: // subtipo ::= WEB 
+            {
+              String RESULT =null;
+		int tleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).left;
+		int tright = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).right;
+		Token t = (Token)((java_cup.runtime.Symbol) CUP$Parser$stack.peek()).value;
+		 RESULT = t.value; 
+              CUP$Parser$result = parser.getSymbolFactory().newSymbol("subtipo",4, ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
+            }
+          return CUP$Parser$result;
+
+          /*. . . . . . . . . . . . . . . . . . . .*/
+          case 17: // subtipo ::= DATABASE 
+            {
+              String RESULT =null;
+		int tleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).left;
+		int tright = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).right;
+		Token t = (Token)((java_cup.runtime.Symbol) CUP$Parser$stack.peek()).value;
+		 RESULT = t.value; 
+              CUP$Parser$result = parser.getSymbolFactory().newSymbol("subtipo",4, ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
+            }
+          return CUP$Parser$result;
+
+          /*. . . . . . . . . . . . . . . . . . . .*/
+          case 18: // subtipo ::= APP 
+            {
+              String RESULT =null;
+		int tleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).left;
+		int tright = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).right;
+		Token t = (Token)((java_cup.runtime.Symbol) CUP$Parser$stack.peek()).value;
+		 RESULT = t.value; 
+              CUP$Parser$result = parser.getSymbolFactory().newSymbol("subtipo",4, ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
+            }
+          return CUP$Parser$result;
+
+          /*. . . . . . . . . . . . . . . . . . . .*/
+          case 19: // lista_ifaces ::= lista_ifaces interfaz 
+            {
+              List RESULT =null;
+		int listleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).left;
+		int listright = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).right;
+		List list = (List)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-1)).value;
 		int ileft = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).left;
 		int iright = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).right;
-		NodoInterfaz i = (NodoInterfaz)((java_cup.runtime.Symbol) CUP$Parser$stack.peek()).value;
-		 List<NodoInterfaz> l = new ArrayList<>(); l.add(i); RESULT = l; 
-              CUP$Parser$result = parser.getSymbolFactory().newSymbol("lista_interfaces",5, ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
+		InterfaceNode i = (InterfaceNode)((java_cup.runtime.Symbol) CUP$Parser$stack.peek()).value;
+		
+        list.add(i);
+        RESULT = list;
+    
+              CUP$Parser$result = parser.getSymbolFactory().newSymbol("lista_ifaces",5, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }
           return CUP$Parser$result;
 
           /*. . . . . . . . . . . . . . . . . . . .*/
-          case 19: // lista_interfaces ::= lista_interfaces interfaz 
+          case 20: // lista_ifaces ::= 
             {
-              List<NodoInterfaz> RESULT =null;
-		int lileft = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).left;
-		int liright = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).right;
-		List<NodoInterfaz> li = (List<NodoInterfaz>)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-1)).value;
-		int ileft = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).left;
-		int iright = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).right;
-		NodoInterfaz i = (NodoInterfaz)((java_cup.runtime.Symbol) CUP$Parser$stack.peek()).value;
-		 li.add(i); RESULT = li; 
-              CUP$Parser$result = parser.getSymbolFactory().newSymbol("lista_interfaces",5, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
+              List RESULT =null;
+		
+        RESULT = new ArrayList();
+    
+              CUP$Parser$result = parser.getSymbolFactory().newSymbol("lista_ifaces",5, ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }
           return CUP$Parser$result;
 
           /*. . . . . . . . . . . . . . . . . . . .*/
-          case 20: // interfaz ::= INTERFAZ IDENTIFICADOR PYC 
+          case 21: // interfaz ::= INTERFAZ ID SEMICOLON 
             {
-              NodoInterfaz RESULT =null;
-		int idleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).left;
-		int idright = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).right;
-		String id = (String)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-1)).value;
-		 RESULT = new NodoInterfaz(id, null, idleft, idright); 
+              InterfaceNode RESULT =null;
+		int kwleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-2)).left;
+		int kwright = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-2)).right;
+		Token kw = (Token)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-2)).value;
+		int nameleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).left;
+		int nameright = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).right;
+		Token name = (Token)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-1)).value;
+		
+        RESULT = new InterfaceNode(name.value, null, kw.line, kw.column);
+    
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("interfaz",6, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-2)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }
           return CUP$Parser$result;
 
           /*. . . . . . . . . . . . . . . . . . . .*/
-          case 21: // interfaz ::= INTERFAZ IDENTIFICADOR IP_KW DIRECCION_IP PYC 
+          case 22: // interfaz ::= INTERFAZ ID ID IP_ADDRESS SEMICOLON 
             {
-              NodoInterfaz RESULT =null;
-		int idleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-3)).left;
-		int idright = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-3)).right;
-		String id = (String)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-3)).value;
-		int ipleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).left;
-		int ipright = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).right;
-		String ip = (String)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-1)).value;
-		 RESULT = new NodoInterfaz(id, ip, idleft, idright); 
+              InterfaceNode RESULT =null;
+		int kwleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-4)).left;
+		int kwright = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-4)).right;
+		Token kw = (Token)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-4)).value;
+		int nameleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-3)).left;
+		int nameright = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-3)).right;
+		Token name = (Token)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-3)).value;
+		int ip_kwleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-2)).left;
+		int ip_kwright = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-2)).right;
+		Token ip_kw = (Token)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-2)).value;
+		int addrleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).left;
+		int addrright = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).right;
+		Token addr = (Token)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-1)).value;
+		
+        RESULT = new InterfaceNode(name.value, addr.value, kw.line, kw.column);
+    
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("interfaz",6, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-4)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }
           return CUP$Parser$result;
 
           /*. . . . . . . . . . . . . . . . . . . .*/
-          case 22: // lista_conexiones ::= 
+          case 23: // conexion ::= CONECTAR ID DOT ID ARROW ID DOT ID SEMICOLON 
             {
-              List<NodoConexion> RESULT =null;
-		 RESULT = new ArrayList<>(); 
-              CUP$Parser$result = parser.getSymbolFactory().newSymbol("lista_conexiones",7, ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
-            }
-          return CUP$Parser$result;
-
-          /*. . . . . . . . . . . . . . . . . . . .*/
-          case 23: // lista_conexiones ::= lista_conexiones conexion 
-            {
-              List<NodoConexion> RESULT =null;
-		int lcleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).left;
-		int lcright = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).right;
-		List<NodoConexion> lc = (List<NodoConexion>)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-1)).value;
-		int cleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).left;
-		int cright = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).right;
-		NodoConexion c = (NodoConexion)((java_cup.runtime.Symbol) CUP$Parser$stack.peek()).value;
-		 lc.add(c); RESULT = lc; 
-              CUP$Parser$result = parser.getSymbolFactory().newSymbol("lista_conexiones",7, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
-            }
-          return CUP$Parser$result;
-
-          /*. . . . . . . . . . . . . . . . . . . .*/
-          case 24: // conexion ::= CONECTAR IDENTIFICADOR PUNTO IDENTIFICADOR FLECHA IDENTIFICADOR PUNTO IDENTIFICADOR PYC 
-            {
-              NodoConexion RESULT =null;
-		int d1left = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-7)).left;
-		int d1right = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-7)).right;
-		String d1 = (String)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-7)).value;
-		int i1left = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-5)).left;
-		int i1right = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-5)).right;
-		String i1 = (String)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-5)).value;
-		int d2left = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-3)).left;
-		int d2right = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-3)).right;
-		String d2 = (String)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-3)).value;
-		int i2left = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).left;
-		int i2right = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).right;
-		String i2 = (String)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-1)).value;
-		 RESULT = new NodoConexion(d1, i1, d2, i2, d1left, d1right); 
-              CUP$Parser$result = parser.getSymbolFactory().newSymbol("conexion",8, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-8)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
+              ConnectionNode RESULT =null;
+		int kwleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-8)).left;
+		int kwright = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-8)).right;
+		Token kw = (Token)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-8)).value;
+		int srcDevleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-7)).left;
+		int srcDevright = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-7)).right;
+		Token srcDev = (Token)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-7)).value;
+		int srcIfleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-5)).left;
+		int srcIfright = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-5)).right;
+		Token srcIf = (Token)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-5)).value;
+		int dstDevleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-3)).left;
+		int dstDevright = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-3)).right;
+		Token dstDev = (Token)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-3)).value;
+		int dstIfleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).left;
+		int dstIfright = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).right;
+		Token dstIf = (Token)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-1)).value;
+		
+        RESULT = new ConnectionNode(
+            srcDev.value,  srcIf.value,
+            dstDev.value,  dstIf.value,
+            kw.line, kw.column
+        );
+    
+              CUP$Parser$result = parser.getSymbolFactory().newSymbol("conexion",7, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-8)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }
           return CUP$Parser$result;
 

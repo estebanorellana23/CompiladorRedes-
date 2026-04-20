@@ -1,0 +1,28 @@
+@startuml
+title Topología de Red - Empresa
+
+database "Router R1\ng0/0: 10.0.0.1/30\ng0/1: 192.168.1.1/24" as R1
+rectangle "Firewall FW1\ninside: 192.168.1.254/24\noutside: 10.0.0.2/30" as FW1
+component "Switch L3 CORE\ng1/0/1\ng1/0/2\nvlan10: 192.168.10.1/24\nvlan20: 192.168.20.1/24" as CORE
+component "Switch SW1\nf0/1\nf0/2\nf0/3" as SW1
+rectangle "WEB1\nServer Web\neth0: 192.168.10.10/24" as WEB1
+database "DB1\nServer Database\neth0: 192.168.20.10/24" as DB1
+note "PC PC1\neth0: 192.168.10.20/24" as PC1
+note "PC PC2\neth0: 192.168.20.21/24" as PC2
+note "Laptop L1\nwlan0: 192.168.10.30/24" as L1
+note "Mobile M1\nwifi0: 192.168.10.40/24" as M1
+node "AP1\nAccess Point\nwlan1\nwlan2\neth0" as AP1
+cloud "Internet NET\nwan0" as NET
+
+PC1 -- SW1 : eth0 ↔ f0/1
+PC2 -- SW1 : eth0 ↔ f0/2
+L1 -- AP1 : wlan0 ↔ wlan1
+M1 -- AP1 : wifi0 ↔ wlan2
+AP1 -- SW1 : eth0 ↔ f0/3
+WEB1 -- CORE : eth0 ↔ g1/0/1
+DB1 -- CORE : eth0 ↔ g1/0/2
+CORE -- FW1 : vlan10 ↔ inside
+FW1 -- R1 : outside ↔ g0/0
+R1 -- NET : g0/1 ↔ wan0
+
+@enduml
