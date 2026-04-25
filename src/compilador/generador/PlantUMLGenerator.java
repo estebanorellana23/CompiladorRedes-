@@ -157,9 +157,9 @@ public class PlantUMLGenerator implements ASTVisitor<String> {
             case SERVER_WEB:      return node.name + "\\nServer Web";
             case SERVER_DATABASE: return node.name + "\\nServer Database";
             case SERVER_APP:      return node.name + "\\nServer App";
-            case PC:              return "PC " + node.name;
-            case LAPTOP:          return "Laptop " + node.name;
-            case MOBILE:          return "Mobile " + node.name;
+            case PC:              return node.name;
+            case LAPTOP:          return node.name;
+            case MOBILE:          return node.name;
             case ACCESSPOINT:     return node.name + "\\nAccess Point";
             case INTERNET:        return "Internet " + node.name;
             default:              return node.name;

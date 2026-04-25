@@ -1,6 +1,7 @@
 package compilador.semantic;
 
 import compilador.ast.DeviceNode;
+import compilador.ast.DeviceType;
 import compilador.ast.InterfaceNode;
 
 import java.util.*;
@@ -79,6 +80,19 @@ public class SymbolTable {
      */
     public DeviceNode getDevice(String deviceName) {
         return devices.get(deviceName);
+    }
+
+    /**
+     * Obtiene el tipo (DeviceType) de un dispositivo por nombre.
+     * Usada por el SemanticAnalyzer para aplicar excepciones de la regla S7
+     * (ACCESSPOINT y SWITCHL3 pueden tener múltiples conexiones en la misma interfaz).
+     *
+     * @param deviceName nombre del dispositivo
+     * @return el DeviceType, o null si el dispositivo no existe
+     */
+    public DeviceType getDeviceType(String deviceName) {
+        DeviceNode dev = devices.get(deviceName);
+        return dev != null ? dev.deviceType : null;
     }
 
     /**

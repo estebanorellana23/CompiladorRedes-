@@ -23,7 +23,9 @@ import java.util.regex.Pattern;
  *     S4. El dispositivo DESTINO de la conexión debe existir.
  *     S5. La interfaz ORIGEN debe existir en el dispositivo origen.
  *     S6. La interfaz DESTINO debe existir en el dispositivo destino.
- *     S7. Una interfaz no puede conectarse más de una vez.
+ *     S7. Una interfaz no puede conectarse más de una vez,
+ *         SALVO que el dispositivo sea ACCESSPOINT o SWITCHL3
+ *         (por naturaleza admiten múltiples conexiones en la misma interfaz).
  *    S10. Un dispositivo no puede conectarse a sí mismo.
  */
 public class SemanticAnalyzer implements ASTVisitor<Void> {
@@ -36,15 +38,23 @@ public class SemanticAnalyzer implements ASTVisitor<Void> {
         "^(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})$"
     );
 
+    /**
+     * Tipos de dispositivo que pueden tener la misma interfaz
+     * conectada más de una vez (regla S7, excepción del dominio).
+     */
+    private static final Set<DeviceType> MULTI_CONNECTION_ALLOWED = EnumSet.of(
+        DeviceType.ACCESSPOINT,
+        DeviceType.SWITCHL3
+    );
+
     // ── Acceso externo ──────────────────────────────────────────────────────
 
-    public List<CompilerError> getErrors()    { return errors; }
+    public List<CompilerError> getErrors()      { return errors; }
     public SymbolTable         getSymbolTable() { return symbolTable; }
-    public boolean             hasErrors()    { return !errors.isEmpty(); }
+    public boolean             hasErrors()      { return !errors.isEmpty(); }
 
     /**
      * Punto de entrada principal.
-     * Lanza el análisis desde el nodo raíz.
      */
     public void analyze(NetworkNode network) {
         network.accept(this);
@@ -56,12 +66,12 @@ public class SemanticAnalyzer implements ASTVisitor<Void> {
 
     @Override
     public Void visitNetwork(NetworkNode node) {
-        // ── PASADA 1: registrar dispositivos y validar reglas sobre dispositivos ──
+        // ── PASADA 1: registrar dispositivos ─────────────────────────────────
         for (DeviceNode device : node.devices) {
             device.accept(this);
         }
 
-        // ── PASADA 2: validar conexiones (la tabla ya está completa) ──────────
+        // ── PASADA 2: validar conexiones (tabla ya completa) ──────────────────
         for (ConnectionNode conn : node.connections) {
             conn.accept(this);
         }
@@ -70,8 +80,7 @@ public class SemanticAnalyzer implements ASTVisitor<Void> {
     }
 
     // ════════════════════════════════════════════════════════════════════════
-    //  VISITOR: DeviceNode
-    //  Aplica: S1, S2, S8, S9
+    //  VISITOR: DeviceNode  —  S1, S2, S8, S9
     // ════════════════════════════════════════════════════════════════════════
 
     @Override
@@ -108,8 +117,7 @@ public class SemanticAnalyzer implements ASTVisitor<Void> {
     }
 
     // ════════════════════════════════════════════════════════════════════════
-    //  VISITOR: InterfaceNode
-    //  Aplica: S8 (formato de IP)
+    //  VISITOR: InterfaceNode  —  S8
     // ════════════════════════════════════════════════════════════════════════
 
     @Override
@@ -121,8 +129,7 @@ public class SemanticAnalyzer implements ASTVisitor<Void> {
     }
 
     // ════════════════════════════════════════════════════════════════════════
-    //  VISITOR: ConnectionNode
-    //  Aplica: S3, S4, S5, S6, S7, S10
+    //  VISITOR: ConnectionNode  —  S3, S4, S5, S6, S7, S10
     // ════════════════════════════════════════════════════════════════════════
 
     @Override
@@ -166,17 +173,28 @@ public class SemanticAnalyzer implements ASTVisitor<Void> {
 
         // ── S7: Interfaz ORIGEN ya conectada ─────────────────────────────────
         if (srcDevOk && symbolTable.interfaceExists(node.sourceDevice, node.sourceInterface)) {
-            if (!symbolTable.markConnected(node.sourceDevice, node.sourceInterface)) {
+            DeviceType srcType = symbolTable.getDeviceType(node.sourceDevice);
+            boolean multiAllowed = srcType != null && MULTI_CONNECTION_ALLOWED.contains(srcType);
+
+            if (!multiAllowed && !symbolTable.markConnected(node.sourceDevice, node.sourceInterface)) {
                 error("La interfaz '" + node.sourceDevice + "." + node.sourceInterface
                       + "' ya fue utilizada en otra conexión", node.line, node.column);
+            } else if (multiAllowed) {
+                // Registrar igualmente para la tabla de símbolos, sin bloquear
+                symbolTable.markConnected(node.sourceDevice, node.sourceInterface);
             }
         }
 
         // ── S7: Interfaz DESTINO ya conectada ────────────────────────────────
         if (dstDevOk && symbolTable.interfaceExists(node.targetDevice, node.targetInterface)) {
-            if (!symbolTable.markConnected(node.targetDevice, node.targetInterface)) {
+            DeviceType dstType = symbolTable.getDeviceType(node.targetDevice);
+            boolean multiAllowed = dstType != null && MULTI_CONNECTION_ALLOWED.contains(dstType);
+
+            if (!multiAllowed && !symbolTable.markConnected(node.targetDevice, node.targetInterface)) {
                 error("La interfaz '" + node.targetDevice + "." + node.targetInterface
                       + "' ya fue utilizada en otra conexión", node.line, node.column);
+            } else if (multiAllowed) {
+                symbolTable.markConnected(node.targetDevice, node.targetInterface);
             }
         }
 
@@ -184,10 +202,9 @@ public class SemanticAnalyzer implements ASTVisitor<Void> {
     }
 
     // ════════════════════════════════════════════════════════════════════════
-    //  Validaciones de dominio
+    //  Validaciones de dominio  —  S9
     // ════════════════════════════════════════════════════════════════════════
 
-    /** S9: Un switch capa 2 no puede tener interfaces VLAN con IP asignada. */
     private void validateDomainRules(DeviceNode device, InterfaceNode iface) {
         if (device.deviceType == DeviceType.SWITCH) {
             if (iface.name.toLowerCase().startsWith("vlan") && iface.hasIP()) {
@@ -200,7 +217,7 @@ public class SemanticAnalyzer implements ASTVisitor<Void> {
     }
 
     // ════════════════════════════════════════════════════════════════════════
-    //  Validación de IP  (S8)
+    //  Validación de IP  —  S8
     // ════════════════════════════════════════════════════════════════════════
 
     private void validateIP(String ip, int line, int col) {
@@ -210,7 +227,6 @@ public class SemanticAnalyzer implements ASTVisitor<Void> {
                   line, col);
             return;
         }
-
         for (int i = 1; i <= 4; i++) {
             int octet = Integer.parseInt(m.group(i));
             if (octet < 0 || octet > 255) {
@@ -219,7 +235,6 @@ public class SemanticAnalyzer implements ASTVisitor<Void> {
                 return;
             }
         }
-
         int mask = Integer.parseInt(m.group(5));
         if (mask < 0 || mask > 32) {
             error("Máscara inválida en la IP '" + ip + "': /"

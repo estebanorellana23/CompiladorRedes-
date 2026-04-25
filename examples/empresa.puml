@@ -7,10 +7,10 @@ component "Switch L3 CORE\ng1/0/1\ng1/0/2\nvlan10: 192.168.10.1/24\nvlan20: 192.
 component "Switch SW1\nf0/1\nf0/2\nf0/3" as SW1
 rectangle "WEB1\nServer Web\neth0: 192.168.10.10/24" as WEB1
 database "DB1\nServer Database\neth0: 192.168.20.10/24" as DB1
-note "PC PC1\neth0: 192.168.10.20/24" as PC1
-note "PC PC2\neth0: 192.168.20.21/24" as PC2
-note "Laptop L1\nwlan0: 192.168.10.30/24" as L1
-note "Mobile M1\nwifi0: 192.168.10.40/24" as M1
+note "PC1\neth0: 192.168.10.20/24" as PC1
+note "PC2\neth0: 192.168.20.21/24" as PC2
+note "L1\nwlan0: 192.168.10.30/24" as L1
+note "M1\nwifi0: 192.168.10.40/24" as M1
 node "AP1\nAccess Point\nwlan1\nwlan2\neth0" as AP1
 cloud "Internet NET\nwan0" as NET
 

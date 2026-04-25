@@ -9,7 +9,7 @@ java -jar lib\jflex-full-1.9.1.jar -d src\compilador\lexer src\compilador\lexer\
 echo [2/3] Generando Analizador Sintactico (CUP)...
 cd src\compilador\parser
 java -jar ..\..\..\lib\java-cup-11b.jar -parser Parser -symbols sym parser.cup
-cd ..\..\..\
+cd ..\..\..\ 
 
 echo [3/3] Compilando archivos Java...
 if not exist bin mkdir bin
@@ -22,10 +22,15 @@ if %ERRORLEVEL% EQU 0 (
     echo ==========================================
     echo COMPILACION EXITOSA
     echo.
-    echo Ejemplos de uso:
+    echo Modo terminal:
     echo   java -cp "bin;lib\java-cup-11b.jar" compilador.Main examples\empresa.red
     echo   java -cp "bin;lib\java-cup-11b.jar" compilador.Main examples\empresa.red --tokens --symbols
     echo   java -cp "bin;lib\java-cup-11b.jar" compilador.Main examples\errorred.red
+    echo   java -cp "bin;lib\java-cup-11b.jar" compilador.Main examples\minired.red --ast
+    echo.
+    echo Modo GUI:
+    echo   java -cp "bin;lib\java-cup-11b.jar" compilador.CompilerGUI
+    echo ==========================================
 ) else (
     echo ==========================================
     echo ERROR EN LA COMPILACION
